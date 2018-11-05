@@ -1,0 +1,126 @@
+// npm install cheerio
+
+var request = require('request'); // npm install request
+var async = require('async'); // npm install async
+var fs = require('fs');
+// CZL dont use var use let or const
+// https://stackoverflow.com/questions/762011/whats-the-difference-between-using-let-and-var-to-declare-a-variable-in-jav
+var apiKey = process.env.TAMU_KEY ||"503df1365d4f49ba8d299d28e3ae0414"; 
+
+var meetingsData = [];
+//var addresses = ["63 Fifth Ave", "16 E 16th St", "2 W 13th St"];
+
+
+
+
+
+var fs = require('fs');
+var cheerio = require('cheerio');
+var hw2 = '';
+
+// load the hw5 text file into a variable, `content`
+// this is the file that we created in the starter code from last week
+var content = fs.readFileSync('../Assignment1/hw5.txt');
+
+// load `content` into a cheerio object
+var $ = cheerio.load(content);
+
+var meetingsData = [];//redoing week2.js using arrays
+        
+//var last = meetingsData.pop();// remove parens and cityzip (from the end)
+
+//var newLength = meetingsData.push('New York, NY');// adds New York, NY to the end of the array
+
+// print (to the console) names of Address/Locations
+$('td').each(function(i, elem) {  //'each is a loop  //all the addresses were in tables'
+    //console.log($(elem).html());
+    if ($(elem).attr('style') == 'border-bottom:1px solid #e3e3e3; width:260px') {
+        meetingsData.push($(elem).html().split('<br>')[2].trim());//pulled out the addresses
+        //var meetingsData = globalcitystate.push('New York, NY'); // ["Address, City,State"]
+        //meetingsData.push($(elem).html().split('<br>')[3].trim());//pulled out the city and zipcode
+        //meetingsData.pop();// remove parens and cityzip (from the end)
+        //meetingsData.push('New York, NY');
+    }
+});
+// CZL this function has parameter when written, an argument when called
+// https://www.differencebetween.com/difference-between-argument-and-vs-parameter/
+function parseData(array){//creating function to parse the data in the array, the function has 1 parameter (the array) and
+//when called will need to place an array as an argument
+//CZL map is very important for manipulating data in arrays
+// https://www.w3schools.com/jsref/jsref_map.asp
+ let newArr = array.map((item)=> { //returns a new array with formatted data  
+  let tempArr = item.split(','); //splits out the string (without the comma) into a new array
+  return tempArr[0]; //this returns the first item in the temp array
+ })
+  let newArr2 = newArr.map((item)=> {
+  let tempArr = item.split('(');
+  return tempArr[0];
+ })
+ meetingsData = newArr2;
+}
+// CZL calling the function meetings data is an argument
+parseData(meetingsData);
+let addresses = meetingsData;//identifying how we want to name the addresses in the 
+// CZL for testing purposes to quickly see the results
+console.log(meetingsData);
+//  CZL resetting meetings data 
+meetingsData = [];
+
+// addresses = ["63 Fifth Ave"];//this is just to test my api request
+// CZL this sytanx is built into ES6 please refer to async functions
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+ // eachSeries in the async module iterates over an array and operates on each item in the array in series
+async.eachSeries(addresses, function(value, callback) {
+    var apiRequest = 'https://geoservices.tamu.edu/Services/Geocode/WebService/GeocoderWebServiceHttpNonParsed_V04_01.aspx?';
+    apiRequest += 'streetAddress=' + value.split(' ').join('%20');
+    apiRequest += '&city=New%20York&state=NY&apikey=' + apiKey;
+    apiRequest += '&format=json&version=4.01';
+    
+    request(apiRequest, function(err, resp, body) {
+        if (err) {throw err;}
+        else {
+            var tamuGeo = JSON.parse(body);
+            console.log(tamuGeo['FeatureMatchingResultType']);
+            meetingsData.push(tamuGeo);
+        }
+    });
+    setTimeout(callback, 2000);
+}, function() {
+    meetingsData = formatObjects(meetingsData) 
+    fs.writeFileSync('first.json', JSON.stringify(meetingsData));
+    console.log('*** *** *** *** ***');
+    console.log('Number of meetings in this zone: ');
+    console.log(meetingsData.length);
+    console.log(meetingsData);//for testing our data
+});
+// CZL although this syntax is out of date for the newer way refer to spread syntax
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+function makeObject(Object){ //makes a new Object in the correct format to be called in our map function
+    let newObject = {
+        Address: Object.InputAddress.StreetAddress,
+        LatLong: {
+            lat: Object.OutputGeocodes[0].OutputGeocode.Latitude, //this is a key value pair
+            lng: Object.OutputGeocodes[0].OutputGeocode.Longitude, //this is a key value pair
+        }
+    }
+   return newObject; 
+}
+// CZL a good practice for writing functions is to always have it take arguments and always return a value
+// maps over the array of objects to make them into new objects, just simple reformat
+function formatObjects(arrayOfObjects){ //creating a function to transform an array of objects into the desired format
+    let newArr = arrayOfObjects.map((item)=> {//mapping over the API array that will have the information we want
+        let newItem = makeObject(item)
+        return newItem;
+    })
+ return newArr;
+}
+
+// write the project addresses to a text file
+//var address = ''; // this variable will hold the lines of text
+
+//$('td').each(function(i, elem) {
+    //address += ($(elem).text()) + '\n';
+//});
+
+//fs.writeFileSync('../Assignment3/hw5_parsed.txt', JSON.stringify(meetingsData));
+//fs.writeFileSync('Assignment2/thesis_test.txt', thesisTitles);
