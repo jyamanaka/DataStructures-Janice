@@ -1,0 +1,3 @@
+Writing this README.md file on 12/2/18
+
+Contacting the API (and learning about API's!) in order to add the Latitude and Longitude of the AA meeting locations.  Was thrilled to see how that worked.  But looking back, again it would be helpful to understand where we were heading with this -- As a simple exercise, this was excellent.  Fast forward -- I understand now how I should have read through the AA data, to see how there would be problems in the future.  First glance though, interesting to see what problems did emerge with latitude and longitude -- and will  be much more careful going forward.  
