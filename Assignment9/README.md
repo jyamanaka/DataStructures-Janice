@@ -1,0 +1,3 @@
+Writing and Reading Sensor Data to the Postgres SQL Table.
+
+Took several tries, and had to learn how to delete table and rewrite -- but taught me about the Postgreg SQL table.  This was frustrating because the table wasn't easily viewed to see if all data was inserted, unless you did the check.js and the environment.js to read out the data.  In theory, I understand how this database works, but frustrating, and needs alot of javascript tweaking to understand and read the correct data.  Don't know if I'll ever get to fully understand this, without taking a huge leap of faith (and alot of javascript!) testing and retesting.
