@@ -9,7 +9,7 @@ function createDBCredentialsForSensor(){
     db_credentials.user = 'jyamanaka';
     db_credentials.host = 'photondb.ck6xx6c2ltsk.us-east-1.rds.amazonaws.com';
     db_credentials.database = 'photondb';
-    db_credentials.password = "Hj02318826^";
+    db_credentials.password = "Pbwilson26^";
     db_credentials.port = 5432;
     return db_credentials;
 }
@@ -21,7 +21,7 @@ function createDBCredentialsForAAMeeting(){
     db_credentials.host = 'testdb.ck6xx6c2ltsk.us-east-1.rds.amazonaws.com';
     db_credentials.database = 'testdb';
     //db_credentials.password = process.env.AWSRDS_PW;
-    db_credentials.password = "Hj02318826^";
+    db_credentials.password = "Pbwilson26^";
     // db_credentials.password = "";
     db_credentials.port = 5432;
     return db_credentials;
@@ -37,7 +37,8 @@ app.get('/sensor', function(req, res) {
     // SQL query 
     //changed because the sensorValue field is null. sensorValue is for sensor positioning
     var q = `SELECT EXTRACT(DAY FROM sensorTime) as sensorday,
-             AVG(sensorResult) as average_result
+             AVG(sensorResult) as average_result,
+             COUNT(sensorResult) as occurances
              FROM sensorData
              GROUP BY sensorday
              ORDER BY sensorday;`;
@@ -82,14 +83,15 @@ app.get('/aameetings', function(req, res) {
     //use these variables to modify the query
     var hourToSelect = 18;  //hourToSelect is in military time - change this to change the query for different times
     var dayToSelect = "'Tuesdays' ";
-    
+    var operation = ">=";
+
     var thisQuery = "SELECT newAddress as mtgaddress, title as location, json_agg(json_build_object('day', day, 'startTime', startTime )) as meetings " +
                  "FROM aaMeetings " +  
                  "WHERE day = " + dayToSelect +
                  "AND to_number(LEFT(startTime,POSITION(':' in startTime)-1),'99') + (12 * POSITION('PM' in RIGHT(startTime,2))) " +
                  " + (POSITION('12' in LEFT(startTime,2)) * POSITION('AM' in RIGHT(startTime,2)) * 12) " +
                  " - (POSITION('12' in LEFT(startTime,2)) * POSITION('PM' in RIGHT(startTime,2)) * 12) " +
-                 " => " + hourToSelect +
+                 operation + hourToSelect +
                  "GROUP BY newAddress, title;";
 /*
 date_part('hour', timestamp '2001-02-16 20:38:40')
@@ -109,8 +111,8 @@ app.get('/deardiary', function(req, res) {
     ///////
     // AWS DynamoDB credentials
     AWS.config = new AWS.Config();
-    AWS.config.accessKeyId = "AKIAIRTYP4CAUSN4XKQQ";
-    AWS.config.secretAccessKey = "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";
+    AWS.config.accessKeyId = "AKIAIZ6HUP5AEA6VGBWA";
+    AWS.config.secretAccessKey = "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";
     AWS.config.region = "us-east-1";
 
     /*var AWS = require('aws-sdk');
