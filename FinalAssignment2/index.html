@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+ 
+      function setup(){
+        getData();
+      }
+
+      function getData(){
+
+          // Theres no styling with this page -- 
+          $.get("deardiary", function(data){
+            var smileyURL = "https://image.shutterstock.com/image-vector/drawing-smiley-face-260nw-47547706.jpg";
+            var frownURL ="https://cdn.drawception.com/images/panels/2016/11-18/3h2TrS5F7B-10.png";
+            var showSmile = data[0].major.BOOL;
+
+            if (showSmile){
+                document.getElementById("image1").src = smileyURL;
+            }
+            else{
+                document.getElementById("image1").src = frownURL;
+            }
+            document.getElementById("header1").innerHTML = data[0].dt.S;
+            document.getElementById("header2").innerHTML = data[0].name.S;
+            document.getElementById("header3").innerHTML = data[0].meaning.S;
+            document.getElementById("header4").innerHTML = data[0].narrative.S;
+            console.log(data[0].major.BOOL);
+          });
+      }
+
+</script>
+  </head>
+  <body>
+    <h1 id="header1"></h1>
+     <h2 id="header2"></h2>
+     <h2 id="header3"></h2>
+     <h2 id="header4"></h2>
+    <img id="image1" src="" >
+  </body>
+</html>
