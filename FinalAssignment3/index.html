@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      
+var font;
+var fontsize = 11;
+var migrationData; // declare a global variable to store the data
+var table;
+
+function preload() {
+
+  
+}
+
+
+function setup(){
+  getData();
+}
+
+function getData(){
+
+    $.get("sensor", function(data){
+        makeGraph(data);
+    });
+}
+
+function makeGraph(data){
+  console.log("Data: ",data);
+  //run through the values of the sensor and find the lowest and the highest
+  var lowest_val = data[0].average_result;
+  var highest_val = data[0].average_result;
+
+  //go through the loop and find the lowest and highest value
+  for (var i = 0; i < data.length; i++){
+    var currentElem = data[i]
+    console.log("data elem:", currentElem)
+    if (currentElem.average_result > highest_val){
+      highest_val =  currentElem.average_result
+    }
+    if (currentElem.average_result < lowest_val){
+      lowest_val =  currentElem.average_result
+    }
+
+  }
+  //make sure above works
+  var range = highest_val - lowest_val
+  console.log("lowest=",lowest_val);
+  console.log("highest=",highest_val)
+  console.log("range=",range)
+  //highest_val *= 100;
+  //lowest_val *= 100;
+  
+
+  createCanvas(5000, 5000);
+
+  var bottom = 0;
+  var sqht = 50;
+  var spaceOver = sqht;
+  var colpos = 0;
+  var widthratio = 30;
+  var colNos = 1000
+  var spaceBetweenRows = 0;
+  //This loop run for 4 times - once for red to blue scale, once for green scale, once for blue scale, once for gray scale
+  for (var a=0;a<4;a++ ){
+    //this loop generates the rectangles of one of the colors below
+    for (var i=0; i < data.length; i++){
+        var curReading = data[i].average_result         // * 100;
+        var ratio = (curReading - lowest_val)/range
+        var mColor = 255 * ratio;
+        if (a==0)
+          //the outliers of the lowest value are blue, the middle is purple, the highest is red
+          var mColor = color(mColor,0,255-mColor);
+        if (a==1)
+          //the higher the value - closer to green, lower closer to black
+          var mColor = color(0,mColor,0);
+        if (a==2)
+          //the higher the value - closer to blue, lower closer to black
+          var mColor = color(0,0,mColor);
+        if (a==3)
+          //the higher the value - closer to white, lower closer to black, inbetween is gray scale
+          var mColor = color(mColor,mColor,mColor);
+  
+
+        fill(mColor);
+        noStroke();
+        rect(colpos*(sqht/widthratio) ,bottom,sqht/widthratio,sqht);
+        colpos++;
+        if (colpos == colNos){
+          colpos = 0
+          bottom += (sqht+spaceBetweenRows)
+        }
+    }
+  }
+}
+
+</script>
+  </head>
+  <body>
+  </body>
+</html>
